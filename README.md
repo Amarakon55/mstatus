@@ -6,10 +6,10 @@ mstatus is a minimal stautus bar for DWM that comes preconfigured out of the box
 * Separated by separators
 
 ## Dependencies
-# Mandatory
+### Mandatory
 1. lm-sensors
 1. sysstat
-# Optional
+### Optional
 * acpi (Optional – Battery support)
 * libXft-bgra-patch (Optional – Color support)
 * dwm-allow-color-font-patch (Optional – Color support) 
