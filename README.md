@@ -1,5 +1,5 @@
 # mstatus
-<img src="example.png" alt="mstatus">
+<img src="example.png">
 
 mstatus is a minimal stautus bar for DWM that comes preconfigured out of the box including these features:
 * Colored unicode icons support
