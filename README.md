@@ -32,3 +32,21 @@ Mstatus is a minimal status bar for DWM that comes preconfigured out of the box 
 * `$ cd mstatus`
 2. Uninstall Mstatus using the Makefile
 * `# make uninstall`
+
+### Gentoo
+#### Installation
+##### Latest Git Master (Bleeding Edge)
+1. Add my personal [Gentoo overlay](https://github.com/Amarakon55/amarlay) using [eselect-repository](https://packages.gentoo.org/packages/app-eselect/eselect-repository)
+* `# eselect repository add amarlay git https://github.com/Amarakon55/amarlay`
+2. Sync my personal [Gentoo overlay](https://github.com/Amarakon55/amarlay) using `emerge`
+* `# emerge --sync amarlay`
+3. Emerge the Mstatus package
+* `# emerge app-misc/mstatus` or `# emerge mstatus`
+#### Uninstallation
+##### Latest Git Master (Bleeding Edge)
+1. Unmerge the Mstatus package
+* `# emerge -c app-misc/mstatus` or `# emerge -c mstatus`
+2. (Optional) Remove my overlay
+* `# eselect-repository remove -f amarlay`
+3. (Optional) Sync using `emerge`
+* `# emerge --sync`
