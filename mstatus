@@ -1,0 +1,232 @@
+#!/bin/bash
+
+update_backlight() {
+    brightness="$(light | cut -d '.' -f1)"
+   
+    { [ "$brightness" -lt 10 ] && backlight="^c#434c5e^^d^ $brightness%"; } ||
+    { [ "$brightness" -lt 25 ] && backlight="^c#e5e9f0^^d^ $brightness%"; } ||
+    { [ "$brightness" -lt 50 ] && backlight="^c#ebcb8b^^d^ $brightness%"; } ||
+    { [ "$brightness" -ge 75 ] && backlight="^c#a3be8c^^d^ $brightness%"; } ||
+    { backlight="^c#a3be8c^^d^ $brightness%"; }    
+}
+
+update_battery() {
+    # Glyphs battery_0 to battery_100 and battery_charging_0 to
+    # battery_charging_100, in increments of 10.
+    set -- '^b#bf616a^\357\226\215^d^' '^c#bf616a^\357\225\271^d^' '^c#434c5e^\357\225\272^d^' '^c#4c566a^\357\225\273^d^' \
+	'^c#e5e9f0^\357\225\274^d^' '^c#ebcb8b^\357\225\275^d^' '^c#a3be8c^\357\225\276^d^' '^c#a3be8c^\357\225\277^d^' \
+	'^c#a3be8c^\357\226\200^d^' '^c#a3be8c^\357\226\201^d^' '^b#a3be8c^\357\225\270^d^' \
+	'^b#bf616a^\357\264\220^d^' '^c#bf616a^\357\264\206^d^' '^c#434c5e^\357\264\207^d^' '^c#4c566a^\357\264\210^d^' \
+	'^c#e5e9f0^\357\264\211^d^' '^c#ebcb8b^\357\264\212^d^' '^c#a3be8c^\357\264\213^d^' '^c#a3be8c^\357\264\214^d^' \
+	'^c#a3be8c^\357\264\215^d^' '^c#a3be8c^\357\264\216^d^' '^b#a3be8c^\357\264\205^d^' '^b#d8dee9^\357\226\202^d^' \
+	'^b#d8dee9^\357\264\217^d^' '\357\256\243'
+
+    { [ "$(acpi | wc -l)" -eq 0 ] && battery="$(printf "^c#3B4252^│^d^ ")"; }
+    batt_path=/sys/class/power_supply/BAT0
+    time=$(acpi | cut -d' ' -f5)
+    [ "$(printf $time | grep -v '^[[:space:]]*$' | wc -l)" -ne 0 ] && time2="^c#3B4252^|^d^$time"
+    zero=$(acpi | cut -d' ' -f7)
+
+    read -r capacity <"$batt_path/capacity"
+    read -r status <"$batt_path/status"
+
+    total="$status $capacity"
+
+    case $status in
+	Charging) charging=1 ;;
+    esac
+
+    case $status in
+	Full)
+	    icon=${11}
+	;;
+	*)
+	    # Get the corresponding icon from the positional parameters
+	    # with an offset of 11 glyphs if the battery is charging.
+	    eval "batt_icon=\${$((capacity / 10 + 1 + (charging ? 11 : 0)))}"
+	;;
+    esac
+
+
+    case $zero in
+	zero) icon=${24}
+    battery="$(printf "$batt_icon $capacity ^c#3B4252^│^d^ ")"
+    esac
+
+    case $status in
+	Charging)
+    battery="$(printf "$batt_icon $capacity%%$time2 ^c#3B4252^│^d^ ")"
+    esac
+
+    case $status in
+	Discharging)
+    battery="$(printf "$batt_icon $capacity%%$time2 ^c#3B4252^│^d^ ")"
+    esac
+
+    case $status in
+	Full)
+    battery="$(printf "$batt_icon $capacity%% ^c#3B4252^│^d^ ")"
+    esac
+
+    case $status in
+	Unknown) icon=${23}
+    battery="$(printf "$batt_icon $capacity%% ^c#3B4252^│^d^ ")"
+    esac
+
+    case $time in
+	until) icon=${24}
+    battery="$(printf "$batt_icon $capacity%% ^c#3B4252^│^d^ ")"
+    esac
+
+    case $total in
+	'Discharging 9')
+    [ "$(ps axh | grep mpv | grep "/usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav" | wc -l)" -ge 1 ] && kill "$(ps axh | grep mpv | grep "/usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav" | awk '{print $1}')"
+    esac
+
+    case $total in
+	'Discharging 10')
+    [ "$(ps axh | grep mpv | grep "/usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav" | wc -l)" -eq 0 ] && setsid mpv --really-quiet --pause=no /usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav &>/dev/null
+    esac
+
+    case $total in
+	'Discharging 11')
+    [ "$(ps axh | grep mpv | grep "/usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav" | wc -l)" -ge 1 ] && kill "$(ps axh | grep mpv | grep "/usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav" | awk '{print $1}')"
+    esac
+}
+
+update_cpu_icon() {
+    cpu_path=/sys/devices/system/cpu/cpu0
+    read -r scaling_governor <"$cpu_path/cpufreq/scaling_governor"
+
+    { [ "$scaling_governor" = powersave ] && cpu_icon="^c#4c566a^臘^d^"; } ||
+    { [ "$scaling_governor" = conservative ] && cpu_icon="^c#ebcb8b^^d^"; } ||
+    { [ "$scaling_governor" = performance ] && cpu_icon="^c#bf616a^^d^"; } ||
+    { cpu_icon="^c#a3be8c^﬙"^d^; }
+}
+
+update_cpu_speed() {
+    cpu_0_speed="$(grep MHz /proc/cpuinfo | awk '{print $4}' | awk -F '.' '{print $1}' | tr '\n' ' ' | awk '{print $1}')"
+    cpu_1_speed="$(grep MHz /proc/cpuinfo | awk '{print $4}' | awk -F '.' '{print $1}' | tr '\n' ' ' | awk '{print $2}')"
+    cpu_2_speed="$(grep MHz /proc/cpuinfo | awk '{print $4}' | awk -F '.' '{print $1}' | tr '\n' ' ' | awk '{print $3}')"
+    cpu_3_speed="$(grep MHz /proc/cpuinfo | awk '{print $4}' | awk -F '.' '{print $1}' | tr '\n' ' ' | awk '{print $4}')"
+
+    cpu_num0="$(expr $cpu_0_speed + $cpu_1_speed + $cpu_2_speed + $cpu_3_speed)"
+    cpu_num1="$(expr $cpu_num0 / 4)"
+    cpu_num2="$(dc <<< "1 k $(printf $cpu_num1) 1000 / p")GHz"
+
+    cpu_speed="$cpu_num2"
+}
+
+update_cpu_percentage() {
+    cpu_percentage="$(mpstat | awk '$12 ~ /[0-9.]+/ { print 100 - $12 }' | awk '{print int($1+0.5)}')%"
+}
+
+update_cpu_temperature() {
+    cpu_temperature="$(sensors | awk '/temp1:/ {print $2}' | cut -d '+' -f2)"
+}
+
+update_cpu() {
+    cpu="$cpu_icon $cpu_speed^c#3B4252^|^d^$cpu_percentage^c#3B4252^|^d^$cpu_temperature"
+}
+
+update_datetime() {
+    datetime="^c#81A1C1^^d^ $(date +"%D^c#3B4252^|^d^%R:%S")"
+}
+
+update_disk() {
+    disk_num0="$(df -h / | tail --lines=+2 | awk '{print $3}')"
+    disk_num1="$(df -h / | tail --lines=+2 | awk '{print $2}')"
+    disk_num2="$disk_num0"iB"/$disk_num1""iB"
+    disk_perc="$(df -h / | tail --lines=+2 | awk '{print $5}' | cut -d '%' -f1)"
+
+
+    { [ "$disk_perc" -lt 10 ] && disk="^c#434c5e^^d^ $disk_num2"; } ||
+    { [ "$disk_perc" -lt 25 ] && disk="^c#e5e9f0^^d^ $disk_num2"; } ||
+    { [ "$disk_perc" -lt 50 ] && disk="^c#ebcb8b^^d^ $disk_num2"; } ||
+    { [ "$disk_perc" -ge 90 ] && disk="^c#bf616a^^d^ $disk_num2"; } ||
+    { disk="^c#a3be8c^^d^ $disk_num2"; }
+}
+
+update_ffmpeg() {
+    ffmpeg_check="$(ps axch | grep ffmpeg | grep -v ffmpeg-status | wc -l)"
+    ffmpeg_check_id="$(ps axch | grep ffmpeg | grep -v ffmpeg-status | awk '{print $1}')"
+
+    { [ "$(ps axh | grep ffmpeg | grep x11grab | grep alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="辶^c#3B4252^|^d^"; } ||
+    { [ "$(ps axh | grep ffmpeg | grep x11grab | grep -v alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="辶"; } ||
+    { [ "$(ps axh | grep ffmpeg | grep alsa | grep -v x11grab | wc -l)" -ge 1 ] && ffmpeg_icon2=""; } ||
+    { ffmpeg_icon2=""; }
+
+
+    { [ "$ffmpeg_check" -ge 1 ] && ffmpeg_pause="$(grep State /proc/$ffmpeg_checkid/status | cut -d '(' -f2 | cut -d ')' -f1)"; }
+    { [ "$ffmpeg_pause" = "stopped" ] && ffmpeg_icon3="^c#ebcb8b^^d^"; }
+
+    { [ -v ffmpeg_icon3 ] && ffmpeg="$ffmpeg_icon2^c#3B4252^|^d^$ffmpeg_icon3 "; } ||
+    #{ [ -v ffmpeg_icon2 ] && ffmpeg="$ffmpeg_icon2 "; } ||
+    { ffmpeg="$ffmpeg_icon2 "; }
+    #{ ffmpeg="lol"; }
+}
+
+update_volume_input() {
+    input_volume="$(pactl get-source-volume 0 | awk '{print $5}' | cut -d '%' -f1 | grep -v '^[[:space:]]*$')"
+    input_ismuted="$(pactl get-source-mute 0 | cut -d ' ' -f2)"
+    
+    { [ "$input_volume" = 0 ] && volume_input="^c#434c5e^^d^ $input_volume%"; } ||
+    { [ "$input_ismuted" = yes ] && volume_input="^c#4c566a^^d^ $input_volume%"; } ||
+    { [ "$input_volume" -lt 25 ] && volume_input="^c#e5e9f0^^d^ $input_volume%"; } ||
+    { [ "$input_volume" -lt 50 ] && volume_input="^c#ebcb8b^^d^ $input_volume%"; } ||
+    { [ "$input_volume" -gt 100 ] && volume_input="^c#bf616a^^d^ $input_volume%"; } ||
+    { volume_input="^c#a3be8c^^d^ $input_volume%"; }
+}
+
+update_volume_output() {
+    output_volume="$(pactl get-sink-volume 0 | awk '{print $5}' | cut -d '%' -f1 | grep -v '^[[:space:]]*$')"
+    output_ismuted="$(pactl get-sink-mute 0 | cut -d ' ' -f2)"
+    
+    { [ "$output_volume" = 0 ] && volume_output="^c#434c5e^婢^d^ $output_volume%"; } ||
+    { [ "$output_ismuted" = yes ] && volume_output="^c#4c566a^ﱝ^d^ $output_volume%"; } ||
+    { [ "$output_volume" -lt 25 ] && volume_output="^c#e5e9f0^奄^d^ $output_volume%"; } ||
+    { [ "$output_volume" -lt 50 ] && volume_output="^c#ebcb8b^奔^d^ $output_volume%"; } ||
+    { [ "$output_volume" -gt 100 ] && volume_output="^c#bf616a^^d^ $output_volume%"; } ||
+    { volume_output="^c#a3be8c^墳^d^ $output_volume%"; }
+}
+
+update_keymap() {
+    keyboard_layout="$(xkblayout-state print %e)"
+
+    { [ "$keyboard_layout" = us ] && keymap="^c#81A1C1^^d^ qwerty"; } ||
+    { keymap="^c#81A1C1^^d^ $keyboard_layout"; }
+}
+
+update_memory_amount() {
+    memory_num0="$(free -h | awk '/Mem:/ {print $3}')"
+    memory_num1="$(free -h | awk '/Mem:/ {print $2}')"
+    memory_num2=""$memory_num0"B"/$memory_num1"B"
+    memory_perc="$(free | grep Mem | awk '{print $3/$2 * 100}' | cut -d '.' -f1)"
+    
+    { [ "$memory_perc" -lt 10 ] && memory_amount="^c#434c5e^^d^ $memory_num2"; } ||
+    { [ "$memory_perc" -lt 25 ] && memory_amount="^c#e5e9f0^^d^ $memory_num2"; } ||
+    { [ "$memory_perc" -lt 50 ] && memory_amount"^c#ebcb8b^^d^ $memory_num2"; } ||
+    { [ "$memory_perc" -ge 90 ] && memory_amount"^c#bf616a^^d^ $memory_num2"; } ||
+    { memory_amount="^c#a3be8c^^d^ $memory_num2"; }
+}
+
+while true
+do
+    update_backlight
+    update_battery
+    update_cpu_icon
+    update_cpu_speed
+    update_cpu_percentage
+    update_cpu_temperature
+    update_cpu
+    update_datetime
+    update_disk
+    update_ffmpeg
+    update_keymap
+    update_memory_amount
+    update_volume_output
+    update_volume_input
+
+    xsetroot -name " $ffmpeg$volume_output $volume_input $backlight $keymap ^c#3B4252^│^d^ $cpu $memory_amount $disk $battery$datetime"
+    sleep 0.001
+done
