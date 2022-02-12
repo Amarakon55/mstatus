@@ -13,7 +13,7 @@ Mstatus is a minimal status bar for DWM that comes preconfigured out of the box 
 1. sysstat (CPU Speed)
 1. acpi (Battery support)
 ### Optional
-1. libXft-bgra-patch (Color support)
+1. [DWM status2d patch](https://dwm.suckless.org/patches/status2d/) (color support)
 1. nerd-fonts-symbols (Unicode icon suport) (A patched font is recemmended. I use Inconsolata.)
 
 ## (Un)Installation
