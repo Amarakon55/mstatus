@@ -15,3 +15,20 @@ mstatus is a minimal status bar for DWM that comes preconfigured out of the box 
 1. acpi (Battery support)
 1. libXft-bgra-patch (Color support)
 1. nerd-fonts-symbols (Unicode icon suport) (A patched font is recemmended. I use Inconsolata.)
+
+## (Un)Installation
+### Universal
+#### Installation
+##### Latest Git Master (Bleeding Edge)
+1. Git clone the repository.
+* `$ git clone https://github.com/Amarakon55/cfetch`
+2. Change working directory to cfetch.
+* `$ cd cfetch`
+3. Install Cfetch using the Makefile
+* `# make install clean`
+#### Uninstallation
+##### Latest Git Master (Bleeding Edge)
+1. Change working directory to cfetch.
+* `$ cd cfetch`
+2. Uninstall Cfetch using the Makefile
+* `# make uninstall clean`
