@@ -77,21 +77,6 @@ update_battery() {
 	until) icon=${24}
     battery="$(printf "$batt_icon $capacity%% ^c#3B4252^│^d^ ")"
     esac
-
-    case $total in
-	'Discharging 9')
-    [ "$(ps axh | grep mpv | grep "/usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav" | wc -l)" -ge 1 ] && kill "$(ps axh | grep mpv | grep "/usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav" | awk '{print $1}')"
-    esac
-
-    case $total in
-	'Discharging 10')
-    [ "$(ps axh | grep mpv | grep "/usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav" | wc -l)" -eq 0 ] && setsid mpv --really-quiet --pause=no /usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav &>/dev/null
-    esac
-
-    case $total in
-	'Discharging 11')
-    [ "$(ps axh | grep mpv | grep "/usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav" | wc -l)" -ge 1 ] && kill "$(ps axh | grep mpv | grep "/usr/share/sounds/deepin/stereo/power-unplug-battery-low.wav" | awk '{print $1}')"
-    esac
 }
 
 update_cpu_icon() {
