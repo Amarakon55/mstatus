@@ -10,7 +10,7 @@ mstatus is a minimal stautus bar for DWM that comes preconfigured out of the box
 1. lm-sensors
 1. sysstat
 ### Optional
-* acpi (Optional – Battery support)
-* libXft-bgra-patch (Optional – Color support)
-* dwm-allow-color-font-patch (Optional – Color support) 
-* nerd-fonts-symbols (Optional – Unicode icon suport) (A patched font is recemmended. I use Inconsolata.)
+1. acpi (Optional – Battery support)
+1. libXft-bgra-patch (Optional – Color support)
+1. dwm-allow-color-font-patch (Optional – Color support) 
+1. nerd-fonts-symbols (Optional – Unicode icon suport) (A patched font is recemmended. I use Inconsolata.)
