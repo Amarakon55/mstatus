@@ -11,8 +11,8 @@ Mstatus is a minimal status bar for DWM that comes preconfigured out of the box 
 ### Mandatory
 1. lm-sensors (CPU Temperature)
 1. sysstat (CPU Speed)
-### Optional
 1. acpi (Battery support)
+### Optional
 1. libXft-bgra-patch (Color support)
 1. nerd-fonts-symbols (Unicode icon suport) (A patched font is recemmended. I use Inconsolata.)
 
