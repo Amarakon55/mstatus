@@ -14,5 +14,4 @@ mstatus is a minimal status bar for DWM that comes preconfigured out of the box 
 ### Optional
 1. acpi (Battery support)
 1. libXft-bgra-patch (Color support)
-1. dwm-allow-color-font-patch (Color support) 
 1. nerd-fonts-symbols (Unicode icon suport) (A patched font is recemmended. I use Inconsolata.)
