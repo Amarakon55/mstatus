@@ -1,7 +1,7 @@
-# mstatus
+# Mstatus
 <img src="example.png">
 
-mstatus is a minimal status bar for DWM that comes preconfigured out of the box including these features:
+Mstatus is a minimal status bar for DWM that comes preconfigured out of the box including these features:
 * Colored unicode icons support
 * Unicode icons change based on the status of the module
 * Updates every millisecond (can be changed)
@@ -21,14 +21,14 @@ mstatus is a minimal status bar for DWM that comes preconfigured out of the box 
 #### Installation
 ##### Latest Git Master (Bleeding Edge)
 1. Git clone the repository.
-* `$ git clone https://github.com/Amarakon55/cfetch`
-2. Change working directory to cfetch.
-* `$ cd cfetch`
-3. Install Cfetch using the Makefile
-* `# make install clean`
+* `$ git clone https://github.com/Amarakon55/mstatus`
+2. Change working directory to mstatus.
+* `$ cd mstatus`
+3. Install Mstatus using the Makefile
+* `# make install`
 #### Uninstallation
 ##### Latest Git Master (Bleeding Edge)
-1. Change working directory to cfetch.
-* `$ cd cfetch`
-2. Uninstall Cfetch using the Makefile
-* `# make uninstall clean`
+1. Change working directory to mstatus.
+* `$ cd mstatus`
+2. Uninstall Mstatus using the Makefile
+* `# make uninstall`
