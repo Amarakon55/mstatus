@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 update_backlight() {
     brightness="$(light | cut -d '.' -f1)"
@@ -145,10 +145,8 @@ update_ffmpeg() {
     { [ "$ffmpeg_check" -ge 1 ] && ffmpeg_pause="$(grep State /proc/$ffmpeg_checkid/status | cut -d '(' -f2 | cut -d ')' -f1)"; }
     { [ "$ffmpeg_pause" = "stopped" ] && ffmpeg_icon3="^c#ebcb8b^^d^"; }
 
-    { [ -v ffmpeg_icon3 ] && ffmpeg="$ffmpeg_icon2^c#3B4252^|^d^$ffmpeg_icon3 "; } ||
-    #{ [ -v ffmpeg_icon2 ] && ffmpeg="$ffmpeg_icon2 "; } ||
+    { [ -n "${ffmpeg_icon3+1}" ] && ffmpeg="$ffmpeg_icon2^c#3B4252^|^d^$ffmpeg_icon3 "; } ||
     { ffmpeg="$ffmpeg_icon2 "; }
-    #{ ffmpeg="lol"; }
 }
 
 update_volume_input() {
