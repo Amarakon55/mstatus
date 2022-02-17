@@ -133,8 +133,8 @@ update_disk() {
 }
 
 update_ffmpeg() {
-    ffmpeg_check="$(ps axch | grep ffmpeg | grep -v ffmpeg-status | wc -l)"
-    ffmpeg_check_id="$(ps axch | grep ffmpeg | grep -v ffmpeg-status | awk '{print $1}')"
+    ffmpeg_check="$(pgrep ffmpeg | wc -l)"
+    ffmpeg_check_id="$(pgrep ffmpeg)"
 
     { [ "$(ps axh | grep ffmpeg | grep x11grab | grep alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="辶^c#3B4252^|^d^"; } ||
     { [ "$(ps axh | grep ffmpeg | grep x11grab | grep -v alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="辶"; } ||
@@ -142,11 +142,11 @@ update_ffmpeg() {
     { ffmpeg_icon2=""; }
 
 
-    { [ "$ffmpeg_check" -ge 1 ] && ffmpeg_pause="$(grep State /proc/$ffmpeg_checkid/status | cut -d '(' -f2 | cut -d ')' -f1)"; }
-    { [ "$ffmpeg_pause" = "stopped" ] && ffmpeg_icon3="^c#ebcb8b^^d^"; }
+    { [ "$ffmpeg_check" -ge 1 ] && ffmpeg_pause="$(grep State /proc/$ffmpeg_check_id/status | cut -d '(' -f2 | cut -d ')' -f1)"; }
+    { [ "$ffmpeg_pause" = "stopped" ] && ffmpeg_icon3="^c#3B4252^|^d^^c#ebcb8b^^d^"; } ||
+    { ffmpeg_icon3=""; }
 
-    { [ -v ffmpeg_icon3 ] && ffmpeg="$ffmpeg_icon2^c#3B4252^|^d^$ffmpeg_icon3 "; } ||
-    { ffmpeg="$ffmpeg_icon2 "; }
+    ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 "
 }
 
 update_volume_input() {
