@@ -165,8 +165,8 @@ update_volume_output() {
     output_volume="$(pactl get-sink-volume 0 | awk '{print $5}' | cut -d '%' -f1 | grep -v '^[[:space:]]*$')"
     output_ismuted="$(pactl get-sink-mute 0 | cut -d ' ' -f2)"
     
-    { [ "$output_volume" = 0 ] && volume_output="^c#434c5e^婢^d^ $output_volume%"; } ||
     { [ "$output_ismuted" = yes ] && volume_output="^c#4c566a^ﱝ^d^ $output_volume%"; } ||
+    { [ "$output_volume" = 0 ] && volume_output="^c#434c5e^婢^d^ $output_volume%"; } ||
     { [ "$output_volume" -lt 25 ] && volume_output="^c#e5e9f0^奄^d^ $output_volume%"; } ||
     { [ "$output_volume" -lt 50 ] && volume_output="^c#ebcb8b^奔^d^ $output_volume%"; } ||
     { [ "$output_volume" -gt 100 ] && volume_output="^c#bf616a^^d^ $output_volume%"; } ||
