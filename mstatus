@@ -189,8 +189,8 @@ update_memory_amount() {
     
     { [ "$memory_perc" -lt 10 ] && memory_amount="^c#434c5e^^d^ $memory_perc%"; } ||
     { [ "$memory_perc" -lt 25 ] && memory_amount="^c#e5e9f0^^d^ $memory_perc%"; } ||
-    { [ "$memory_perc" -lt 50 ] && memory_amount"^c#ebcb8b^^d^ $memory_perc%"; } ||
-    { [ "$memory_perc" -ge 90 ] && memory_amount"^c#bf616a^^d^ $memory_perc%"; } ||
+    { [ "$memory_perc" -lt 50 ] && memory_amount="^c#ebcb8b^^d^ $memory_perc%"; } ||
+    { [ "$memory_perc" -ge 90 ] && memory_amount="^c#bf616a^^d^ $memory_perc%"; } ||
     { memory_amount="^c#a3be8c^^d^ $memory_perc%"; }
 }
 
