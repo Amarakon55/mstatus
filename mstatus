@@ -80,8 +80,7 @@ update_battery() {
 }
 
 update_cpu_icon() {
-    cpu_path=/sys/devices/system/cpu/cpu0
-    read -r scaling_governor <"$cpu_path/cpufreq/scaling_governor"
+    scaling_governor="$(cpupower frequency-info | grep 'The governor "' | awk -F 'The governor "' {'print $2'} | cut -d '"' -f 1)"
 
     { [ "$scaling_governor" = powersave ] && cpu_icon="^c#4c566a^臘^d^"; } ||
     { [ "$scaling_governor" = conservative ] && cpu_icon="^c#ebcb8b^^d^"; } ||
@@ -90,16 +89,7 @@ update_cpu_icon() {
 }
 
 update_cpu_speed() {
-    cpu_0_speed="$(grep MHz /proc/cpuinfo | awk '{print $4}' | awk -F '.' '{print $1}' | tr '\n' ' ' | awk '{print $1}')"
-    cpu_1_speed="$(grep MHz /proc/cpuinfo | awk '{print $4}' | awk -F '.' '{print $1}' | tr '\n' ' ' | awk '{print $2}')"
-    cpu_2_speed="$(grep MHz /proc/cpuinfo | awk '{print $4}' | awk -F '.' '{print $1}' | tr '\n' ' ' | awk '{print $3}')"
-    cpu_3_speed="$(grep MHz /proc/cpuinfo | awk '{print $4}' | awk -F '.' '{print $1}' | tr '\n' ' ' | awk '{print $4}')"
-
-    cpu_num0="$(expr $cpu_0_speed + $cpu_1_speed + $cpu_2_speed + $cpu_3_speed)"
-    cpu_num1="$(expr $cpu_num0 / 4)"
-    cpu_num2="$(dc <<< "1 k $(printf $cpu_num1) 1000 / p")GHz"
-
-    cpu_speed="$cpu_num2"
+    cpu_speed="$(cpupower frequency-info | grep "current CPU frequency: " | grep " (asserted by call to kernel)" | awk -F "current CPU frequency: " {'print $2'} | awk {'print $1" "$2'})"
 }
 
 update_cpu_percentage() {
