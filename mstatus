@@ -58,7 +58,7 @@ update_battery() {
 
     case $status in
 	Full)
-    battery="^b#a3be8c^^d^ $capacity% ^c#3B4252^│^d^ "
+    battery="${11} $capacity% ^c#3B4252^│^d^ "
     esac
 
     case $status in
