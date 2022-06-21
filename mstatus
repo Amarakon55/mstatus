@@ -137,7 +137,8 @@ update_ffmpeg() {
     { [ "$ffmpeg_pause" = "stopped" ] && ffmpeg_icon3="^c#3B4252^|^d^^c#ebcb8b^^d^"; } ||
     { ffmpeg_icon3=""; }
 
-    ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 "
+    { [ $ffmpeg_icon2 != "" ] && [ -f /tmp/ffmpeg-* ] && ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 $(cat -A $(ls /tmp/ffmpeg-* | tail -1) | tr ' ' '\n' | grep time= | tail -1 | awk -F time= {'print $2'} | sed 's/00://g' | sed 's/:00//g' | cut -d . -f 1) "; } ||
+    { ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 "; }
 }
 
 update_volume_input() {
