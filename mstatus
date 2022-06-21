@@ -94,7 +94,6 @@ update_cpu_temperature() {
 }
 
 update_cpu() {
-    #cpu="$cpu_icon $cpu_speed^c#3B4252^|^d^$cpu_percentage^c#3B4252^|^d^$cpu_temperature"
     cpu="$cpu_icon $cpu_speed"
 }
 
@@ -103,9 +102,6 @@ update_datetime() {
 }
 
 update_disk() {
-    #disk_num0="$(df -h / | tail --lines=+2 | awk '{print $3}')"
-    #disk_num1="$(df -h / | tail --lines=+2 | awk '{print $2}')"
-    #disk_num2="$disk_num0"iB"/$disk_num1""iB"
     disk_perc="$(df -h / | tail --lines=+2 | awk '{print $5}' | cut -d '%' -f1)"
 
 
@@ -166,9 +162,6 @@ update_keymap() {
 }
 
 update_memory_amount() {
-    #memory_num0="$(free -h | awk '/Mem:/ {print $3}')"
-    #memory_num1="$(free -h | awk '/Mem:/ {print $2}')"
-    #memory_num2=""$memory_num0"B"/$memory_num1"B"
     memory_perc="$(free | grep Mem | awk '{print $3/$2 * 100}' | cut -d '.' -f1)"
     
     { [ "$memory_perc" -lt 10 ] && memory_amount="^c#434c5e^^d^ $memory_perc%"; } ||
