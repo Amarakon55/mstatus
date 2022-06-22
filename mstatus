@@ -23,7 +23,7 @@ update_battery() {
 
     { [ "$(acpi | wc -l)" -eq 0 ] && battery="$(printf "^c#3B4252^│^d^ ")"; }
     batt_path=/sys/class/power_supply/BAT0
-    time=$(acpi | cut -d' ' -f5)
+    time=$(acpi | cut -d' ' -f5 | sed 's/^[0:]*//')
     [ "$(echo "$time" | grep -v '^[[:space:]]*$' | wc -l)" -ne 0 ] && time2="^c#3B4252^|^d^$time"
     zero=$(acpi | cut -d' ' -f7)
 
@@ -126,7 +126,7 @@ update_ffmpeg() {
     { [ "$ffmpeg_pause" = "stopped" ] && ffmpeg_icon3="^c#3B4252^|^d^^c#ebcb8b^^d^"; } ||
     { ffmpeg_icon3=""; }
 
-    { [ "$ffmpeg_icon2" != "" ] && [ -f /tmp/ffmpeg-* ] && ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 $(cat -A $(ls /tmp/ffmpeg-* | tail -1) | tr ' ' '\n' | grep time= | tail -1 | awk -F time= {'print $2'} | sed 's/00://g' | sed 's/:00//g' | cut -d . -f 1) "; } ||
+    { [ "$ffmpeg_icon2" != "" ] && [ -f /tmp/ffmpeg-* ] && ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 $(cat -A $(ls /tmp/ffmpeg-* | tail -1) | tr ' ' '\n' | grep time= | tail -1 | awk -F time= {'print $2'} | cut -d '.' -f 1 | sed 's/^[0:]*//') "; } ||
     { ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 "; }
 }
 
