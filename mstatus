@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 update_backlight() {
     brightness="$(light | awk '{print int($1+0.5)}')"
