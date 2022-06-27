@@ -187,6 +187,6 @@ while true; do
     update_volume_output
     update_volume_input
 
-    xsetroot -name " $ffmpeg$volume_output $volume_input $backlight $keymap ^c#3B4252^│^d^ $cpu $memory_amount $disk $battery$datetime" 2> /dev/null
+    xsetroot -name "$ffmpeg$volume_output $volume_input $backlight $keymap ^c#3B4252^│^d^ $cpu $memory_amount $disk $battery$datetime" 2> /dev/null
     sleep 0.001
 done
