@@ -118,7 +118,9 @@ update_ffmpeg() {
 
     { [ "$(ps axh | grep ffmpeg | grep x11grab | grep alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="辶^c#3B4252^|^d^"; } ||
     { [ "$(ps axh | grep ffmpeg | grep x11grab | grep -v alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="辶"; } ||
-    { [ "$(ps axh | grep ffmpeg | grep alsa | grep -v x11grab | wc -l)" -ge 1 ] && ffmpeg_icon2=""; } ||
+    { [ "$(ps axh | grep ffmpeg | grep alsa | grep -v x11grab | grep -v v4l2 | wc -l)" -ge 1 ] && ffmpeg_icon2=""; } ||
+    { [ "$(ps axh | grep ffmpeg | grep v4l2 | grep alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="犯^c#3B4252^|^d^"; } ||
+    { [ "$(ps axh | grep ffmpeg | grep v4l2 | grep -v alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="犯"; } ||
     { ffmpeg_icon2=""; }
 
 
@@ -171,8 +173,7 @@ update_memory_amount() {
     { memory_amount="^c#a3be8c^^d^ $memory_perc%"; }
 }
 
-while true
-do
+while true; do
     update_backlight
     update_battery
     update_cpu_icon
@@ -186,6 +187,6 @@ do
     update_volume_output
     update_volume_input
 
-    xsetroot -name " $ffmpeg$volume_output $volume_input $backlight $keymap ^c#3B4252^│^d^ $cpu $memory_amount $disk $battery$datetime"
+    xsetroot -name " $ffmpeg$volume_output $volume_input $backlight $keymap ^c#3B4252^│^d^ $cpu $memory_amount $disk $battery$datetime" 2> /dev/null
     sleep 0.001
 done
