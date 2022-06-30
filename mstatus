@@ -1,5 +1,8 @@
 #!/bin/sh
 
+sep="^c#3B4252^|^d^"
+separator="^c#3B4252^│^d^"
+
 update_backlight() {
     brightness="$(light | awk '{print int($1+0.5)}')"
    
@@ -21,10 +24,10 @@ update_battery() {
 	'^c#a3be8c^ﴍ^d^' '^c#a3be8c^ﴎ^d^' '^b#a3be8c^ﴅ^d^' '^b#d8dee9^^d^' \
 	'^b#d8dee9^ﴏ^d^' 'ﮣ'
 
-    { [ "$(acpi | wc -l)" -eq 0 ] && battery="$(printf "^c#3B4252^│^d^ ")"; }
+    [ "$(acpi | wc -l)" -eq 0 ] && battery=${25}
     batt_path=/sys/class/power_supply/BAT0
     time=$(acpi | cut -d' ' -f5 | sed 's/^[0:]*//')
-    [ "$(echo "$time" | grep -v '^[[:space:]]*$' | wc -l)" -ne 0 ] && time2="^c#3B4252^|^d^$time"
+    [ "$(echo "$time" | grep -v '^[[:space:]]*$' | wc -l)" -ne 0 ] && time2="$sep$time"
     zero=$(acpi | cut -d' ' -f7)
 
     read -r capacity <"$batt_path/capacity"
@@ -36,40 +39,40 @@ update_battery() {
 	Charging) charging=1 ;;
     esac
 
-	    # Get the corresponding icon from the positional parameters
-	    # with an offset of 11 glyphs if the battery is charging.
-	    eval "batt_icon=\${$((capacity / 10 + 1 + (charging ? 11 : 0)))}"
+	# Get the corresponding icon from the positional parameters
+	# with an offset of 11 glyphs if the battery is charging.
+	eval "batt_icon=\${$((capacity / 10 + 1 + (charging ? 11 : 0)))}"
 
 
-    case $zero in
-	zero) icon=${24}
-    battery="$batt_icon $capacity% ^c#3B4252^│^d^ "
-    esac
+	case $zero in
+	    zero) icon=${24}
+		battery="$batt_icon $capacity%"
+	esac
 
-    case $status in
-	Charging)
-    battery="$batt_icon $capacity%$time2 ^c#3B4252^│^d^ "
-    esac
+	case $status in
+	    Charging)
+		battery="$batt_icon $capacity%$time2"
+	esac
 
-    case $status in
-	Discharging)
-    battery="$batt_icon $capacity%$time2 ^c#3B4252^│^d^ "
-    esac
+	case $status in
+	    Discharging)
+		battery="$batt_icon $capacity%$time2"
+	esac
 
-    case $status in
-	Full)
-    battery="${11} $capacity% ^c#3B4252^│^d^ "
-    esac
+	case $status in
+	    Full)
+		battery="${11} $capacity%"
+	esac
 
-    case $status in
-	Unknown) icon=${23}
-    battery="$batt_icon $capacity% ^c#3B4252^│^d^ "
-    esac
+	case $status in
+	    Unknown) icon=${23}
+		battery="$batt_icon $capacity%"
+	esac
 
-    case $time in
-	until) icon=${24}
-    battery="$batt_icon $capacity% ^c#3B4252^│^d^ "
-    esac
+	case $time in
+	    until) icon=${24}
+		battery="$batt_icon $capacity%"
+	esac
 }
 
 update_cpu_icon() {
@@ -128,8 +131,8 @@ update_ffmpeg() {
     { [ "$ffmpeg_pause" = "stopped" ] && ffmpeg_icon3="^c#3B4252^|^d^^c#ebcb8b^^d^"; } ||
     { ffmpeg_icon3=""; }
 
-    { [ "$ffmpeg_icon2" != "" ] && [ -f /tmp/ffmpeg-* ] && ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 $(cat -A $(ls /tmp/ffmpeg-* | tail -1) | tr ' ' '\n' | grep time= | tail -1 | awk -F time= {'print $2'} | cut -d '.' -f 1 | sed 's/^[0:]*//') "; } ||
-    { ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 "; }
+    { [ "$ffmpeg_icon2" != "" ] && [ -f /tmp/ffmpeg-* ] && ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 $(cat -A $(ls /tmp/ffmpeg-* | tail -1) | tr ' ' '\n' | grep time= | tail -1 | awk -F time= {'print $2'} | cut -d '.' -f 1 | sed 's/^[0:]*//')"; } ||
+    { ffmpeg="$ffmpeg_icon2$ffmpeg_icon3"; }
 }
 
 update_volume_input() {
@@ -187,6 +190,7 @@ while true; do
     update_volume_output
     update_volume_input
 
-    xsetroot -name "$ffmpeg$volume_output $volume_input $backlight $keymap ^c#3B4252^│^d^ $cpu $memory_amount $disk $battery$datetime" 2> /dev/null
+    [ ! -z "$ffmpeg" ] && ffmpeg="$ffmpeg "
+    xsetroot -name " $ffmpeg$volume_output $volume_input $backlight $keymap ^c#3B4252^│^d^ $cpu $memory_amount $disk $battery $separator $datetime"
     sleep 0.001
 done
