@@ -160,10 +160,8 @@ update_volume_output() {
 }
 
 update_keymap() {
-    keyboard_layout="$(xkblayout-state print %e)"
-
-    { [ "$keyboard_layout" = us ] && keymap="^c#81A1C1^^d^ qwerty"; } ||
-    { keymap="^c#81A1C1^^d^ $keyboard_layout"; }
+    keyboard_layout="$(xkb-switch)"
+    keymap="^c#81A1C1^^d^ $keyboard_layout"
 }
 
 update_memory_amount() {
