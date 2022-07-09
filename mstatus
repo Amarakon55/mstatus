@@ -1,8 +1,5 @@
 #!/bin/sh
 
-sep="^c#3B4252^|^d^"
-separator="^c#3B4252^│^d^"
-
 update_battery() {
     # Glyphs battery_0 to battery_100 and battery_charging_0 to
     # battery_charging_100, in increments of 10.
@@ -152,7 +149,9 @@ update_memory_amount() {
     { memory_amount="^c#a3be8c^^d^ $memory_perc%"; }
 }
 
-display() { xsetroot -name " $ffmpeg$volume_output $volume_input $keymap ^c#3B4252^│^d^ $cpu $memory_amount $disk $battery $separator $datetime"; }
+sep="^c#3B4252^|^d^"
+separator="^c#3B4252^│^d^"
+display() { xsetroot -name " $ffmpeg$volume_output $volume_input $keymap $separator $cpu $memory_amount $disk $battery $separator $datetime"; }
 
 trap	"update_volume_output;display"	"RTMIN"
 trap	"update_volume_input;display"	"RTMIN+1"
