@@ -3,16 +3,6 @@
 sep="^c#3B4252^|^d^"
 separator="^c#3B4252^│^d^"
 
-update_backlight() {
-    brightness="$(light | awk '{print int($1+0.5)}')"
-   
-    { [ "$brightness" -lt 10 ] && backlight="^c#434c5e^^d^ $brightness%"; } ||
-    { [ "$brightness" -lt 25 ] && backlight="^c#e5e9f0^^d^ $brightness%"; } ||
-    { [ "$brightness" -lt 50 ] && backlight="^c#ebcb8b^^d^ $brightness%"; } ||
-    { [ "$brightness" -ge 75 ] && backlight="^c#a3be8c^^d^ $brightness%"; } ||
-    { backlight="^c#a3be8c^^d^ $brightness%"; }    
-}
-
 update_battery() {
     # Glyphs battery_0 to battery_100 and battery_charging_0 to
     # battery_charging_100, in increments of 10.
@@ -75,28 +65,16 @@ update_battery() {
 	esac
 }
 
-update_cpu_icon() {
+update_cpu() {
     scaling_governor="$(cpupower frequency-info | grep 'The governor "' | awk -F 'The governor "' {'print $2'} | cut -d '"' -f 1)"
 
     { [ "$scaling_governor" = powersave ] && cpu_icon="^c#4c566a^臘^d^"; } ||
     { [ "$scaling_governor" = conservative ] && cpu_icon="^c#ebcb8b^^d^"; } ||
     { [ "$scaling_governor" = performance ] && cpu_icon="^c#bf616a^^d^"; } ||
     { cpu_icon="^c#a3be8c^﬙"^d^; }
-}
 
-update_cpu_speed() {
     cpu_speed="$(cpupower frequency-info | grep "current CPU frequency: " | grep " (asserted by call to kernel)" | awk -F "current CPU frequency: " {'print $2'} | awk {'print $1" "$2'})"
-}
 
-update_cpu_percentage() {
-    cpu_percentage="$(mpstat | awk '$12 ~ /[0-9.]+/ { print 100 - $12 }' | awk '{print int($1+0.5)}')%"
-}
-
-update_cpu_temperature() {
-    cpu_temperature="$(sensors | awk '/temp1:/ {print $2}' | cut -d '+' -f2)"
-}
-
-update_cpu() {
     cpu="$cpu_icon $cpu_speed"
 }
 
@@ -174,21 +152,26 @@ update_memory_amount() {
     { memory_amount="^c#a3be8c^^d^ $memory_perc%"; }
 }
 
-while true; do
-    update_backlight
-    update_battery
-    update_cpu_icon
-    update_cpu_speed
-    update_cpu
-    update_datetime
-    update_disk
-    update_ffmpeg
-    update_keymap
-    update_memory_amount
-    update_volume_output
-    update_volume_input
+display() { xsetroot -name " $ffmpeg$volume_output $volume_input $keymap ^c#3B4252^│^d^ $cpu $memory_amount $disk $battery $separator $datetime"; }
 
-    [ ! -z "$ffmpeg" ] && ffmpeg="$ffmpeg "
-    xsetroot -name " $ffmpeg$volume_output $volume_input $backlight $keymap ^c#3B4252^│^d^ $cpu $memory_amount $disk $battery $separator $datetime"
-    sleep 0.001
+trap	"update_volume_output;display"	"RTMIN"
+trap	"update_volume_input;display"	"RTMIN+1"
+trap	"update_keymap;display"		"RTMIN+2"
+
+while true; do
+    sleep 1 & wait && {
+	[ $((sec % 1)) -eq 0 ] && update_battery
+	[ $((sec % 1)) -eq 0 ] && update_cpu
+	[ $((sec % 1)) -eq 0 ] && update_datetime
+	[ $((sec % 1)) -eq 0 ] && update_disk
+	[ $((sec % 1)) -eq 0 ] && update_ffmpeg
+	[ $((sec % 1)) -eq 0 ] && update_keymap
+	[ $((sec % 1)) -eq 0 ] && update_volume_output
+	[ $((sec % 1)) -eq 0 ] && update_volume_input
+	[ $((sec % 1)) -eq 0 ] && update_memory_amount
+
+	[ ! -z "$ffmpeg" ] && ffmpeg="$ffmpeg "
+	[ $((sec % 1 )) -eq 0 ] && display
+	sec=$((sec + 1))
+    }
 done
