@@ -158,7 +158,6 @@ trap	"update_volume_input;display"	"RTMIN+1"
 trap	"update_keymap;display"		"RTMIN+2"
 
 while true; do
-    sleep 1 & wait && {
 	[ $((sec % 1)) -eq 0 ] && update_battery
 	[ $((sec % 1)) -eq 0 ] && update_cpu
 	[ $((sec % 1)) -eq 0 ] && update_datetime
@@ -172,5 +171,5 @@ while true; do
 	[ ! -z "$ffmpeg" ] && ffmpeg="$ffmpeg "
 	[ $((sec % 1 )) -eq 0 ] && display
 	sec=$((sec + 1))
-    }
+	sleep 1
 done
