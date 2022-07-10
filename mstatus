@@ -3,13 +3,13 @@
 update_battery() {
     # Glyphs battery_0 to battery_100 and battery_charging_0 to
     # battery_charging_100, in increments of 10.
-    set -- '^b#bf616a^^d^' '^c#bf616a^^d^' '^c#434c5e^^d^' '^c#4c566a^^d^' \
-	'^c#e5e9f0^^d^' '^c#ebcb8b^^d^' '^c#a3be8c^^d^' '^c#a3be8c^^d^' \
-	'^c#a3be8c^^d^' '^c#a3be8c^^d^' '^b#a3be8c^^d^' \
-	'^b#bf616a^ﴐ^d^' '^c#bf616a^ﴆ^d^' '^c#434c5e^ﴇ^d^' '^c#4c566a^ﴈ^d^' \
-	'^c#e5e9f0^ﴉ^d^' '^c#ebcb8b^ﴊ^d^' '^c#a3be8c^ﴋ^d^' '^c#a3be8c^ﴌ^d^' \
-	'^c#a3be8c^ﴍ^d^' '^c#a3be8c^ﴎ^d^' '^b#a3be8c^ﴅ^d^' '^b#d8dee9^^d^' \
-	'^b#d8dee9^ﴏ^d^' 'ﮣ'
+    set -- '^b#bf616a^^d^' '^c#bf616a^^d^' '^c#434c5e^^d^' '^c#4c566a^^d^'\
+	   '^c#e5e9f0^^d^' '^c#ebcb8b^^d^' '^c#a3be8c^^d^' '^c#a3be8c^^d^'\
+	   '^c#a3be8c^^d^' '^c#a3be8c^^d^' '^b#a3be8c^^d^'\
+	   '^b#bf616a^ﴐ^d^' '^c#bf616a^ﴆ^d^' '^c#434c5e^ﴇ^d^' '^c#4c566a^ﴈ^d^'\
+	   '^c#e5e9f0^ﴉ^d^' '^c#ebcb8b^ﴊ^d^' '^c#a3be8c^ﴋ^d^' '^c#a3be8c^ﴌ^d^'\
+	   '^c#a3be8c^ﴍ^d^' '^c#a3be8c^ﴎ^d^' '^b#a3be8c^ﴅ^d^'\
+	   '^b#d8dee9^^d^' '^b#d8dee9^ﴏ^d^' 'ﮣ'
 
     [ "$(acpi | wc -l)" -eq 0 ] && battery=${25}
     batt_path=/sys/class/power_supply/BAT0
@@ -22,44 +22,18 @@ update_battery() {
 
     total="$status $capacity"
 
-    case $status in
-	Charging) charging=1 ;;
+    [ "$status" = "Charging" ] && charging=1
+
+    # Get the corresponding icon from the positional parameters
+    # with an offset of 11 glyphs if the battery is charging.
+    eval "batt_icon=\${$((capacity / 10 + 1 + (charging ? 11 : 0)))}"
+
+    case "$status" in
+	Charging | Discharging)	battery="$batt_icon $capacity%$time2" ;;
+	Full)			battery="${11} $capacity%" ;;
+	Unknown)		battery="${23} $capacity%" ;;
     esac
-
-	# Get the corresponding icon from the positional parameters
-	# with an offset of 11 glyphs if the battery is charging.
-	eval "batt_icon=\${$((capacity / 10 + 1 + (charging ? 11 : 0)))}"
-
-
-	case $zero in
-	    zero) icon=${24}
-		battery="$batt_icon $capacity%"
-	esac
-
-	case $status in
-	    Charging)
-		battery="$batt_icon $capacity%$time2"
-	esac
-
-	case $status in
-	    Discharging)
-		battery="$batt_icon $capacity%$time2"
-	esac
-
-	case $status in
-	    Full)
-		battery="${11} $capacity%"
-	esac
-
-	case $status in
-	    Unknown) icon=${23}
-		battery="$batt_icon $capacity%"
-	esac
-
-	case $time in
-	    until) icon=${24}
-		battery="$batt_icon $capacity%"
-	esac
+    [ "$zero" = "zero" -o "$time" = "until" ] && battery="${24} $capacity%"
 }
 
 update_cpu() {
@@ -171,5 +145,5 @@ while true; do
 	[ ! -z "$ffmpeg" ] && ffmpeg="$ffmpeg "
 	[ $((sec % 1 )) -eq 0 ] && display
 	sec=$((sec + 1))
-	sleep 1
+	sleep 1 & wait
 done
