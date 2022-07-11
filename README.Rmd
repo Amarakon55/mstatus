@@ -16,7 +16,6 @@ Mstatus is a minimal status bar for DWM that comes preconfigured out of the box 
 
 ## Mandatory
 
-#. lm-sensors (CPU temperature)
 #. cpupower (CPU governor and speed)
 #. acpi (battery support)
 

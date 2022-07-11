@@ -27,9 +27,8 @@ the box including these features:
 
 ### Mandatory
 
-1.  lm-sensors (CPU temperature)
-2.  cpupower (CPU governor and speed)
-3.  acpi (battery support)
+1.  cpupower (CPU governor and speed)
+2.  acpi (battery support)
 
 ### Optional
 
