@@ -13,7 +13,7 @@ Mstatus – Minimal Status
     -   [Universal](#universal-1)
     -   [Gentoo](#gentoo-1)
 
-![](example.png)
+![](preview.png)
 
 Mstatus is a minimal status bar for DWM that comes preconfigured out of
 the box including these features:

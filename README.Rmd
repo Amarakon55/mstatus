@@ -3,7 +3,7 @@ title: Mstatus – Minimal Status
 output: amaryaml::github
 ---
 
-![](example.png)
+![](preview.png)
 
 Mstatus is a minimal status bar for DWM that comes preconfigured out of the box including these features:
 
