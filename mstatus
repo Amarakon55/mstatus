@@ -39,10 +39,10 @@ update_battery() {
 update_cpu() {
     scaling_governor="$(cpupower frequency-info | grep 'The governor "' | awk -F 'The governor "' {'print $2'} | cut -d '"' -f 1)"
 
-    { [ "$scaling_governor" = powersave ] && cpu_icon="^c#4c566a^臘^d^"; } ||
-    { [ "$scaling_governor" = conservative ] && cpu_icon="^c#ebcb8b^^d^"; } ||
-    { [ "$scaling_governor" = performance ] && cpu_icon="^c#bf616a^^d^"; } ||
-    { cpu_icon="^c#a3be8c^﬙"^d^; }
+    if [ "$scaling_governor" = powersave ]; then cpu_icon="^c#4c566a^臘^d^"
+    elif [ "$scaling_governor" = conservative ]; then cpu_icon="^c#ebcb8b^^d^"
+    elif [ "$scaling_governor" = performance ]; then cpu_icon="^c#bf616a^^d^"
+    else cpu_icon="^c#a3be8c^﬙^d^"; fi
 
     cpu_speed="$(cpupower frequency-info | grep "current CPU frequency: " | grep " (asserted by call to kernel)" | awk -F "current CPU frequency: " {'print $2'} | awk {'print $1" "$2'})"
 
@@ -56,56 +56,54 @@ update_datetime() {
 update_disk() {
     disk_perc="$(df -h / | tail --lines=+2 | awk '{print $5}' | cut -d '%' -f1)"
 
-
-    { [ "$disk_perc" -lt 10 ] && disk="^c#434c5e^^d^ $disk_perc%"; } ||
-    { [ "$disk_perc" -lt 25 ] && disk="^c#e5e9f0^^d^ $disk_perc%"; } ||
-    { [ "$disk_perc" -lt 50 ] && disk="^c#ebcb8b^^d^ $disk_perc%"; } ||
-    { [ "$disk_perc" -ge 90 ] && disk="^c#bf616a^^d^ $disk_perc%"; } ||
-    { disk="^c#a3be8c^^d^ $disk_perc%"; }
+    if [ "$disk_perc" -lt 10 ]; then disk="^c#434c5e^^d^ $disk_perc%"
+    elif [ "$disk_perc" -lt 25 ]; then disk="^c#e5e9f0^^d^ $disk_perc%"
+    elif [ "$disk_perc" -lt 50 ]; then disk="^c#ebcb8b^^d^ $disk_perc%"
+    elif [ "$disk_perc" -ge 90 ]; then disk="^c#bf616a^^d^ $disk_perc%"
+    else disk="^c#a3be8c^^d^ $disk_perc%"; fi
 }
 
 update_ffmpeg() {
     ffmpeg_check="$(pgrep ffmpeg | wc -l)"
     ffmpeg_check_id="$(pgrep ffmpeg)"
 
-    { [ "$(ps axh | grep ffmpeg | grep x11grab | grep alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="辶^c#3B4252^|^d^"; } ||
-    { [ "$(ps axh | grep ffmpeg | grep x11grab | grep -v alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="辶"; } ||
-    { [ "$(ps axh | grep ffmpeg | grep alsa | grep -v x11grab | grep -v v4l2 | wc -l)" -ge 1 ] && ffmpeg_icon2=""; } ||
-    { [ "$(ps axh | grep ffmpeg | grep v4l2 | grep alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="犯^c#3B4252^|^d^"; } ||
-    { [ "$(ps axh | grep ffmpeg | grep v4l2 | grep -v alsa | wc -l)" -ge 1 ] && ffmpeg_icon2="犯"; } ||
-    { ffmpeg_icon2=""; }
+    if [ "$(ps axh | grep ffmpeg | grep x11grab | grep alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="辶^c#3B4252^|^d^"
+    elif [ "$(ps axh | grep ffmpeg | grep x11grab | grep -v alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="辶"
+    elif [ "$(ps axh | grep ffmpeg | grep alsa | grep -v x11grab | grep -v v4l2 | wc -l)" -ge 1 ]; then ffmpeg_icon2=""
+    elif [ "$(ps axh | grep ffmpeg | grep v4l2 | grep alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="犯^c#3B4252^|^d^"
+    elif [ "$(ps axh | grep ffmpeg | grep v4l2 | grep -v alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="犯"
+    else ffmpeg_icon2=""; fi
 
+    if [ "$ffmpeg_check" -ge 1 ]; then ffmpeg_pause="$(grep State /proc/$ffmpeg_check_id/status | cut -d '(' -f2 | cut -d ')' -f1)"
+    elif [ "$ffmpeg_pause" = "stopped" ]; then ffmpeg_icon3="^c#3B4252^|^d^^c#ebcb8b^^d^"
+    else ffmpeg_icon3=""; fi
 
-    { [ "$ffmpeg_check" -ge 1 ] && ffmpeg_pause="$(grep State /proc/$ffmpeg_check_id/status | cut -d '(' -f2 | cut -d ')' -f1)"; }
-    { [ "$ffmpeg_pause" = "stopped" ] && ffmpeg_icon3="^c#3B4252^|^d^^c#ebcb8b^^d^"; } ||
-    { ffmpeg_icon3=""; }
-
-    { [ "$ffmpeg_icon2" != "" ] && [ -f /tmp/ffmpeg-* ] && ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 $(cat -A $(ls /tmp/ffmpeg-* | tail -1) | tr ' ' '\n' | grep time= | tail -1 | awk -F time= {'print $2'} | cut -d '.' -f 1 | sed 's/^[0:]*//')"; } ||
-    { ffmpeg="$ffmpeg_icon2$ffmpeg_icon3"; }
+    if [ "$ffmpeg_icon2" != "" ] && [ -f /tmp/ffmpeg-* ]; then ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 $(cat -A $(ls /tmp/ffmpeg-* | tail -1) | tr ' ' '\n' | grep time= | tail -1 | awk -F time= {'print $2'} | cut -d '.' -f 1 | sed 's/^[0:]*//')"
+    else ffmpeg="$ffmpeg_icon2$ffmpeg_icon3"; fi
 }
 
 update_volume_input() {
     input_volume="$(pactl get-source-volume 0 | awk '{print $5}' | cut -d '%' -f1 | grep -v '^[[:space:]]*$')"
     input_ismuted="$(pactl get-source-mute 0 | cut -d ' ' -f2)"
     
-    { [ "$input_volume" = 0 ] && volume_input="^c#434c5e^^d^ $input_volume%"; } ||
-    { [ "$input_ismuted" = yes ] && volume_input="^c#4c566a^^d^ $input_volume%"; } ||
-    { [ "$input_volume" -lt 25 ] && volume_input="^c#e5e9f0^^d^ $input_volume%"; } ||
-    { [ "$input_volume" -lt 50 ] && volume_input="^c#ebcb8b^^d^ $input_volume%"; } ||
-    { [ "$input_volume" -gt 100 ] && volume_input="^c#bf616a^^d^ $input_volume%"; } ||
-    { volume_input="^c#a3be8c^^d^ $input_volume%"; }
+    if [ "$input_volume" = 0 ]; then volume_input="^c#434c5e^^d^ $input_volume%"
+    elif [ "$input_ismuted" = yes ]; then volume_input="^c#4c566a^^d^ $input_volume%"
+    elif [ "$input_volume" -lt 25 ]; then volume_input="^c#e5e9f0^^d^ $input_volume%"
+    elif [ "$input_volume" -lt 50 ]; then volume_input="^c#ebcb8b^^d^ $input_volume%"
+    elif [ "$input_volume" -gt 100 ]; then volume_input="^c#bf616a^^d^ $input_volume%"
+    else volume_input="^c#a3be8c^^d^ $input_volume%"; fi
 }
 
 update_volume_output() {
     output_volume="$(pactl get-sink-volume 0 | awk '{print $5}' | cut -d '%' -f1 | grep -v '^[[:space:]]*$')"
     output_ismuted="$(pactl get-sink-mute 0 | cut -d ' ' -f2)"
     
-    { [ "$output_ismuted" = yes ] && volume_output="^c#4c566a^ﱝ^d^ $output_volume%"; } ||
-    { [ "$output_volume" = 0 ] && volume_output="^c#434c5e^婢^d^ $output_volume%"; } ||
-    { [ "$output_volume" -lt 25 ] && volume_output="^c#e5e9f0^奄^d^ $output_volume%"; } ||
-    { [ "$output_volume" -lt 50 ] && volume_output="^c#ebcb8b^奔^d^ $output_volume%"; } ||
-    { [ "$output_volume" -gt 100 ] && volume_output="^c#bf616a^^d^ $output_volume%"; } ||
-    { volume_output="^c#a3be8c^墳^d^ $output_volume%"; }
+    if [ "$output_ismuted" = yes ]; then volume_output="^c#4c566a^ﱝ^d^ $output_volume%"
+    elif [ "$output_volume" = 0 ]; then volume_output="^c#434c5e^婢^d^ $output_volume%"
+    elif [ "$output_volume" -lt 25 ]; then volume_output="^c#e5e9f0^奄^d^ $output_volume%"
+    elif [ "$output_volume" -lt 50 ]; then volume_output="^c#ebcb8b^奔^d^ $output_volume%"
+    elif [ "$output_volume" -gt 100 ]; then volume_output="^c#bf616a^^d^ $output_volume%"
+    else volume_output="^c#a3be8c^墳^d^ $output_volume%"; fi
 }
 
 update_keymap() {
@@ -116,11 +114,11 @@ update_keymap() {
 update_memory_amount() {
     memory_perc="$(free | grep Mem | awk '{print $3/$2 * 100}' | cut -d '.' -f1)"
     
-    { [ "$memory_perc" -lt 10 ] && memory_amount="^c#434c5e^^d^ $memory_perc%"; } ||
-    { [ "$memory_perc" -lt 25 ] && memory_amount="^c#e5e9f0^^d^ $memory_perc%"; } ||
-    { [ "$memory_perc" -lt 50 ] && memory_amount="^c#ebcb8b^^d^ $memory_perc%"; } ||
-    { [ "$memory_perc" -ge 90 ] && memory_amount="^c#bf616a^^d^ $memory_perc%"; } ||
-    { memory_amount="^c#a3be8c^^d^ $memory_perc%"; }
+    if [ "$memory_perc" -lt 10 ]; then memory_amount="^c#434c5e^^d^ $memory_perc%"
+    elif [ "$memory_perc" -lt 25 ]; then memory_amount="^c#e5e9f0^^d^ $memory_perc%"
+    elif [ "$memory_perc" -lt 50 ]; then memory_amount="^c#ebcb8b^^d^ $memory_perc%"
+    elif [ "$memory_perc" -ge 90 ]; then memory_amount="^c#bf616a^^d^ $memory_perc%"
+    else memory_amount="^c#a3be8c^^d^ $memory_perc%"; fi
 }
 
 sep="^c#3B4252^|^d^"
