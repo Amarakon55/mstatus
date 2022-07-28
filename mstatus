@@ -14,7 +14,7 @@ update_battery() {
     [ "$(acpi | wc -l)" -eq 0 ] && battery=${25}
     batt_path=/sys/class/power_supply/BAT0
     time=$(acpi | cut -d' ' -f5 | sed 's/^[0:]*//')
-    [ "$(echo "$time" | grep -v '^[[:space:]]*$' | wc -l)" -ne 0 ] && time2="$sep$time"
+    [ "$(printf "$time" | grep -v '^[[:space:]]*$' | wc -l)" -ne 0 ] && time2="$sep$time"
     zero=$(acpi | cut -d' ' -f7)
 
     read -r capacity <"$batt_path/capacity"
