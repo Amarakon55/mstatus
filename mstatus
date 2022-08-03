@@ -1,133 +1,133 @@
 #!/bin/sh
 
 update_battery() {
-    # Glyphs battery_0 to battery_100 and battery_charging_0 to
-    # battery_charging_100, in increments of 10.
-    set -- '^b#bf616a^^d^' '^c#bf616a^^d^' '^c#434c5e^^d^' '^c#4c566a^^d^'\
-	   '^c#e5e9f0^^d^' '^c#ebcb8b^^d^' '^c#a3be8c^^d^' '^c#a3be8c^^d^'\
-	   '^c#a3be8c^^d^' '^c#a3be8c^^d^' '^b#a3be8c^^d^'\
-	   '^b#bf616a^ﴐ^d^' '^c#bf616a^ﴆ^d^' '^c#434c5e^ﴇ^d^' '^c#4c566a^ﴈ^d^'\
-	   '^c#e5e9f0^ﴉ^d^' '^c#ebcb8b^ﴊ^d^' '^c#a3be8c^ﴋ^d^' '^c#a3be8c^ﴌ^d^'\
-	   '^c#a3be8c^ﴍ^d^' '^c#a3be8c^ﴎ^d^' '^b#a3be8c^ﴅ^d^'\
-	   '^b#d8dee9^^d^' '^b#d8dee9^ﴏ^d^' 'ﮣ'
+	# Glyphs battery_0 to battery_100 and battery_charging_0 to
+	# battery_charging_100, in increments of 10.
+	set -- '^b#bf616a^^d^' '^c#bf616a^^d^' '^c#434c5e^^d^' '^c#4c566a^^d^'\
+		'^c#e5e9f0^^d^' '^c#ebcb8b^^d^' '^c#a3be8c^^d^' '^c#a3be8c^^d^'\
+		'^c#a3be8c^^d^' '^c#a3be8c^^d^' '^b#a3be8c^^d^'\
+		'^b#bf616a^ﴐ^d^' '^c#bf616a^ﴆ^d^' '^c#434c5e^ﴇ^d^' '^c#4c566a^ﴈ^d^'\
+		'^c#e5e9f0^ﴉ^d^' '^c#ebcb8b^ﴊ^d^' '^c#a3be8c^ﴋ^d^' '^c#a3be8c^ﴌ^d^'\
+		'^c#a3be8c^ﴍ^d^' '^c#a3be8c^ﴎ^d^' '^b#a3be8c^ﴅ^d^'\
+		'^b#d8dee9^^d^' '^b#d8dee9^ﴏ^d^' 'ﮣ'
 
-    [ "$(acpi | wc -l)" -eq 0 ] && battery=${25}
-    batt_path=/sys/class/power_supply/BAT0
-    time=$(acpi | cut -d' ' -f5 | sed 's/^[0:]*//')
-    [ "$(printf "$time" | grep -v '^[[:space:]]*$' | wc -l)" -ne 0 ] && time2="$sep$time"
-    zero=$(acpi | cut -d' ' -f7)
+	[ "$(acpi | wc -l)" -eq 0 ] && battery=${25}
+	batt_path=/sys/class/power_supply/BAT0
+	time=$(acpi | cut -d' ' -f5 | sed 's/^[0:]*//')
+	[ "$(printf "$time" | grep -v '^[[:space:]]*$' | wc -l)" -ne 0 ] && time2="$sep$time"
+	zero=$(acpi | cut -d' ' -f7)
 
-    read -r capacity <"$batt_path/capacity"
-    read -r status <"$batt_path/status"
+	read -r capacity <"$batt_path/capacity"
+	read -r status <"$batt_path/status"
 
-    total="$status $capacity"
+	total="$status $capacity"
 
-    [ "$status" = "Charging" ] && charging=1
+	[ "$status" = "Charging" ] && charging=1
 
-    # Get the corresponding icon from the positional parameters
-    # with an offset of 11 glyphs if the battery is charging.
-    eval "batt_icon=\${$((capacity / 10 + 1 + (charging ? 11 : 0)))}"
+	# Get the corresponding icon from the positional parameters
+	# with an offset of 11 glyphs if the battery is charging.
+	eval "batt_icon=\${$((capacity / 10 + 1 + (charging ? 11 : 0)))}"
 
-    case "$status" in
-	Charging | Discharging)	battery="$batt_icon $capacity%$time2" ;;
-	Full)			battery="${11} $capacity%" ;;
-	Unknown)		battery="${23} $capacity%" ;;
-    esac
-    [ "$zero" = "zero" -o "$time" = "until" ] && battery="${24} $capacity%"
+	case "$status" in
+		Charging | Discharging) battery="$batt_icon $capacity%$time2" ;;
+		Full) battery="${11} $capacity%" ;;
+		Unknown) battery="${23} $capacity%" ;;
+	esac
+	[ "$zero" = "zero" -o "$time" = "until" ] && battery="${24} $capacity%"
 }
 
 update_cpu() {
-    scaling_governor="$(cpupower frequency-info | grep 'The governor "' | awk -F 'The governor "' {'print $2'} | cut -d '"' -f 1)"
+	scaling_governor="$(cpupower frequency-info | grep 'The governor "' | awk -F 'The governor "' {'print $2'} | cut -d '"' -f 1)"
 
-    if [ "$scaling_governor" = powersave ]; then cpu_icon="^c#4c566a^臘^d^"
-    elif [ "$scaling_governor" = conservative ]; then cpu_icon="^c#ebcb8b^^d^"
-    elif [ "$scaling_governor" = performance ]; then cpu_icon="^c#bf616a^^d^"
-    else cpu_icon="^c#a3be8c^﬙^d^"; fi
+	if [ "$scaling_governor" = powersave ]; then cpu_icon="^c#4c566a^臘^d^"
+	elif [ "$scaling_governor" = conservative ]; then cpu_icon="^c#ebcb8b^^d^"
+	elif [ "$scaling_governor" = performance ]; then cpu_icon="^c#bf616a^^d^"
+	else cpu_icon="^c#a3be8c^﬙^d^"; fi
 
-    cpu_speed="$(cpupower frequency-info | grep "current CPU frequency: " | grep " (asserted by call to kernel)" | awk -F "current CPU frequency: " {'print $2'} | awk {'print $1" "$2'})"
+	cpu_speed="$(cpupower frequency-info | grep "current CPU frequency: " | grep " (asserted by call to kernel)" | awk -F "current CPU frequency: " {'print $2'} | awk {'print $1" "$2'})"
 
-    cpu="$cpu_icon $cpu_speed"
+	cpu="$cpu_icon $cpu_speed"
 }
 
 update_datetime() {
-    datetime="^c#81A1C1^^d^ $(date +"%D^c#3B4252^|^d^%R:%S")"
+	datetime="^c#81A1C1^^d^ $(date +"%D^c#3B4252^|^d^%R:%S")"
 }
 
 update_disk() {
-    disk_perc="$(df -h / | tail --lines=+2 | awk '{print $5}' | cut -d '%' -f1)"
+	disk_perc="$(df -h / | tail --lines=+2 | awk '{print $5}' | cut -d '%' -f1)"
 
-    if [ "$disk_perc" -lt 10 ]; then disk="^c#434c5e^^d^ $disk_perc%"
-    elif [ "$disk_perc" -lt 25 ]; then disk="^c#e5e9f0^^d^ $disk_perc%"
-    elif [ "$disk_perc" -lt 50 ]; then disk="^c#ebcb8b^^d^ $disk_perc%"
-    elif [ "$disk_perc" -ge 90 ]; then disk="^c#bf616a^^d^ $disk_perc%"
-    else disk="^c#a3be8c^^d^ $disk_perc%"; fi
+	if [ "$disk_perc" -lt 10 ]; then disk="^c#434c5e^^d^ $disk_perc%"
+	elif [ "$disk_perc" -lt 25 ]; then disk="^c#e5e9f0^^d^ $disk_perc%"
+	elif [ "$disk_perc" -lt 50 ]; then disk="^c#ebcb8b^^d^ $disk_perc%"
+	elif [ "$disk_perc" -ge 90 ]; then disk="^c#bf616a^^d^ $disk_perc%"
+	else disk="^c#a3be8c^^d^ $disk_perc%"; fi
 }
 
 update_ffmpeg() {
-    ffmpeg_check="$(pgrep ffmpeg | wc -l)"
-    ffmpeg_check_id="$(pgrep ffmpeg)"
+	ffmpeg_check="$(pgrep ffmpeg | wc -l)"
+	ffmpeg_check_id="$(pgrep ffmpeg)"
 
-    if [ "$(ps axh | grep ffmpeg | grep x11grab | grep alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="辶^c#3B4252^|^d^"
-    elif [ "$(ps axh | grep ffmpeg | grep x11grab | grep -v alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="辶"
-    elif [ "$(ps axh | grep ffmpeg | grep alsa | grep -v x11grab | grep -v v4l2 | wc -l)" -ge 1 ]; then ffmpeg_icon2=""
-    elif [ "$(ps axh | grep ffmpeg | grep v4l2 | grep alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="犯^c#3B4252^|^d^"
-    elif [ "$(ps axh | grep ffmpeg | grep v4l2 | grep -v alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="犯"
-    else ffmpeg_icon2=""; fi
+	if [ "$(ps axh | grep ffmpeg | grep x11grab | grep alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="辶^c#3B4252^|^d^"
+	elif [ "$(ps axh | grep ffmpeg | grep x11grab | grep -v alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="辶"
+	elif [ "$(ps axh | grep ffmpeg | grep alsa | grep -v x11grab | grep -v v4l2 | wc -l)" -ge 1 ]; then ffmpeg_icon2=""
+	elif [ "$(ps axh | grep ffmpeg | grep v4l2 | grep alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="犯^c#3B4252^|^d^"
+	elif [ "$(ps axh | grep ffmpeg | grep v4l2 | grep -v alsa | wc -l)" -ge 1 ]; then ffmpeg_icon2="犯"
+	else ffmpeg_icon2=""; fi
 
-    if [ "$ffmpeg_check" -ge 1 ]; then ffmpeg_pause="$(grep State /proc/$ffmpeg_check_id/status | cut -d '(' -f2 | cut -d ')' -f1)"
-    elif [ "$ffmpeg_pause" = "stopped" ]; then ffmpeg_icon3="^c#3B4252^|^d^^c#ebcb8b^^d^"
-    else ffmpeg_icon3=""; fi
+	if [ "$ffmpeg_check" -ge 1 ]; then ffmpeg_pause="$(grep State /proc/$ffmpeg_check_id/status | cut -d '(' -f2 | cut -d ')' -f1)"
+	elif [ "$ffmpeg_pause" = "stopped" ]; then ffmpeg_icon3="^c#3B4252^|^d^^c#ebcb8b^^d^"
+	else ffmpeg_icon3=""; fi
 
-    if [ "$ffmpeg_icon2" != "" ] && [ -f /tmp/ffmpeg-* ]; then ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 $(cat -A $(ls /tmp/ffmpeg-* | tail -1) | tr ' ' '\n' | grep time= | tail -1 | awk -F time= {'print $2'} | cut -d '.' -f 1 | sed 's/^[0:]*//')"
-    else ffmpeg="$ffmpeg_icon2$ffmpeg_icon3"; fi
+	if [ "$ffmpeg_icon2" != "" ] && [ -f /tmp/ffmpeg-* ]; then ffmpeg="$ffmpeg_icon2$ffmpeg_icon3 $(cat -A $(ls /tmp/ffmpeg-* | tail -1) | tr ' ' '\n' | grep time= | tail -1 | awk -F time= {'print $2'} | cut -d '.' -f 1 | sed 's/^[0:]*//')"
+	else ffmpeg="$ffmpeg_icon2$ffmpeg_icon3"; fi
 }
 
 update_volume_input() {
-    input_volume="$(pactl get-source-volume 0 | awk '{print $5}' | cut -d '%' -f1 | grep -v '^[[:space:]]*$')"
-    input_ismuted="$(pactl get-source-mute 0 | cut -d ' ' -f2)"
-    
-    if [ "$input_volume" = 0 ]; then volume_input="^c#434c5e^^d^ $input_volume%"
-    elif [ "$input_ismuted" = yes ]; then volume_input="^c#4c566a^^d^ $input_volume%"
-    elif [ "$input_volume" -lt 25 ]; then volume_input="^c#e5e9f0^^d^ $input_volume%"
-    elif [ "$input_volume" -lt 50 ]; then volume_input="^c#ebcb8b^^d^ $input_volume%"
-    elif [ "$input_volume" -gt 100 ]; then volume_input="^c#bf616a^^d^ $input_volume%"
-    else volume_input="^c#a3be8c^^d^ $input_volume%"; fi
+	input_volume="$(pactl get-source-volume 0 | awk '{print $5}' | cut -d '%' -f1 | grep -v '^[[:space:]]*$')"
+	input_ismuted="$(pactl get-source-mute 0 | cut -d ' ' -f2)"
+
+	if [ "$input_volume" = 0 ]; then volume_input="^c#434c5e^^d^ $input_volume%"
+	elif [ "$input_ismuted" = yes ]; then volume_input="^c#4c566a^^d^ $input_volume%"
+	elif [ "$input_volume" -lt 25 ]; then volume_input="^c#e5e9f0^^d^ $input_volume%"
+	elif [ "$input_volume" -lt 50 ]; then volume_input="^c#ebcb8b^^d^ $input_volume%"
+	elif [ "$input_volume" -gt 100 ]; then volume_input="^c#bf616a^^d^ $input_volume%"
+	else volume_input="^c#a3be8c^^d^ $input_volume%"; fi
 }
 
 update_volume_output() {
-    output_volume="$(pactl get-sink-volume 0 | awk '{print $5}' | cut -d '%' -f1 | grep -v '^[[:space:]]*$')"
-    output_ismuted="$(pactl get-sink-mute 0 | cut -d ' ' -f2)"
-    
-    if [ "$output_ismuted" = yes ]; then volume_output="^c#4c566a^ﱝ^d^ $output_volume%"
-    elif [ "$output_volume" = 0 ]; then volume_output="^c#434c5e^婢^d^ $output_volume%"
-    elif [ "$output_volume" -lt 25 ]; then volume_output="^c#e5e9f0^奄^d^ $output_volume%"
-    elif [ "$output_volume" -lt 50 ]; then volume_output="^c#ebcb8b^奔^d^ $output_volume%"
-    elif [ "$output_volume" -gt 100 ]; then volume_output="^c#bf616a^^d^ $output_volume%"
-    else volume_output="^c#a3be8c^墳^d^ $output_volume%"; fi
+	output_volume="$(pactl get-sink-volume 0 | awk '{print $5}' | cut -d '%' -f1 | grep -v '^[[:space:]]*$')"
+	output_ismuted="$(pactl get-sink-mute 0 | cut -d ' ' -f2)"
+
+	if [ "$output_ismuted" = yes ]; then volume_output="^c#4c566a^ﱝ^d^ $output_volume%"
+	elif [ "$output_volume" = 0 ]; then volume_output="^c#434c5e^婢^d^ $output_volume%"
+	elif [ "$output_volume" -lt 25 ]; then volume_output="^c#e5e9f0^奄^d^ $output_volume%"
+	elif [ "$output_volume" -lt 50 ]; then volume_output="^c#ebcb8b^奔^d^ $output_volume%"
+	elif [ "$output_volume" -gt 100 ]; then volume_output="^c#bf616a^^d^ $output_volume%"
+	else volume_output="^c#a3be8c^墳^d^ $output_volume%"; fi
 }
 
 update_keymap() {
-    keyboard_layout="$(xkb-switch)"
-    keymap="^c#81A1C1^^d^ $keyboard_layout"
+	keyboard_layout="$(xkb-switch)"
+	keymap="^c#81A1C1^^d^ $keyboard_layout"
 }
 
 update_memory_amount() {
-    memory_perc="$(free | grep Mem | awk '{print $3/$2 * 100}' | cut -d '.' -f1)"
-    
-    if [ "$memory_perc" -lt 10 ]; then memory_amount="^c#434c5e^^d^ $memory_perc%"
-    elif [ "$memory_perc" -lt 25 ]; then memory_amount="^c#e5e9f0^^d^ $memory_perc%"
-    elif [ "$memory_perc" -lt 50 ]; then memory_amount="^c#ebcb8b^^d^ $memory_perc%"
-    elif [ "$memory_perc" -ge 90 ]; then memory_amount="^c#bf616a^^d^ $memory_perc%"
-    else memory_amount="^c#a3be8c^^d^ $memory_perc%"; fi
+	memory_perc="$(free | grep Mem | awk '{print $3/$2 * 100}' | cut -d '.' -f1)"
+
+	if [ "$memory_perc" -lt 10 ]; then memory_amount="^c#434c5e^^d^ $memory_perc%"
+	elif [ "$memory_perc" -lt 25 ]; then memory_amount="^c#e5e9f0^^d^ $memory_perc%"
+	elif [ "$memory_perc" -lt 50 ]; then memory_amount="^c#ebcb8b^^d^ $memory_perc%"
+	elif [ "$memory_perc" -ge 90 ]; then memory_amount="^c#bf616a^^d^ $memory_perc%"
+	else memory_amount="^c#a3be8c^^d^ $memory_perc%"; fi
 }
 
 sep="^c#3B4252^|^d^"
 separator="^c#3B4252^│^d^"
 display() { xsetroot -name " $ffmpeg$volume_output $volume_input $keymap $separator $cpu $memory_amount $disk $battery $separator $datetime"; }
 
-trap	"update_volume_output;display"	"RTMIN"
-trap	"update_volume_input;display"	"RTMIN+1"
-trap	"update_keymap;display"		"RTMIN+2"
+trap "update_volume_output;display" "RTMIN"
+trap "update_volume_input;display" "RTMIN+1"
+trap "update_keymap;display" "RTMIN+2"
 
 while true; do
 	[ $((sec % 1)) -eq 0 ] && update_battery
